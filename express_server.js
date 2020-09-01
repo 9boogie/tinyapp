@@ -1,7 +1,7 @@
 // npm install express
 const express = require('express');
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 // npm install body-parser (For POST route)
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -46,13 +46,18 @@ app.post("/urls", (req, res) => {
   urlDatabase[newShortURL] = newLongURL;
   console.log(urlDatabase);
   let templateVars = { shortURL: newShortURL, longURL: urlDatabase[newShortURL] };
-  res.render("urls_show", templateVars);
+  res.redirect(`/urls/${newShortURL}`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  console.log(req.body)
+  res.redirect('/urls');
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
