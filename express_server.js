@@ -18,12 +18,12 @@ function generatedRandomString() {
     result += letters[(Math.floor(Math.random() * letters.length))];
   }
   return result;
-}
+};
 
 app.get("/urls", (req,res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
-})
+});
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new")
@@ -37,35 +37,13 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   //console.log(req.body);
-  urlDatabase[generatedRandomString()] = req.body.longURL;
+  const newShortURL = generatedRandomString();
+  const newLongURL = req.body.longURL;
+  urlDatabase[newShortURL] = newLongURL;
   console.log(urlDatabase);
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  let templateVars = { shortURL: newShortURL, longURL: urlDatabase[newShortURL] };
+  res.render("urls_show", templateVars);
 });
-
-
-
-/* practice
-app.get("/", (req, res) => {
-  res.send('Hello!');
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
- });
- 
- app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
- });
-*/
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
