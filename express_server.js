@@ -2,11 +2,12 @@
 const express = require('express');
 const app = express();
 const PORT = 8080;
-// npm install body-parser
+// npm install body-parser (For POST route)
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+// npm install --save-dev nodemon ("start": "./node_modules/.bin/nodemon -L express_server.js" to make npm start)
 
-//npm install ejs
+//npm install ejs (Call the ejs)
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -14,6 +15,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Function for generate 6 digits of random characters and
 const generatedRandomString = function() {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
