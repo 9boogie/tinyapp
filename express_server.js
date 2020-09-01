@@ -1,17 +1,20 @@
+// npm install express
 const express = require('express');
 const app = express();
 const PORT = 8080;
+// npm install body-parser
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.set("view engine", "ejs"); 
+//npm install ejs
+app.set("view engine", "ejs");
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-function generatedRandomString() {
+const generatedRandomString = function() {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < 6; i++) {
@@ -22,21 +25,20 @@ function generatedRandomString() {
 
 app.get("/urls", (req,res) => {
   let templateVars = { urls: urlDatabase };
+  console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new")
+  res.render("urls_new");
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  //console.log(req.params)
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  //console.log(req.body);
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
   urlDatabase[newShortURL] = newLongURL;
@@ -51,5 +53,5 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`)
-})
+  console.log(`Example app listening on port ${PORT}`);
+});
