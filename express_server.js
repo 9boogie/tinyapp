@@ -25,37 +25,44 @@ const generatedRandomString = function() {
   return result;
 };
 
+//Home
 app.get("/urls", (req,res) => {
   let templateVars = { urls: urlDatabase };
-  console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
+//Route to new adding page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//Display of shorURL version with long URL
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
 });
 
+//Add new url on Home
 app.post("/urls", (req, res) => {
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
   urlDatabase[newShortURL] = newLongURL;
-  console.log(urlDatabase);
   let templateVars = { shortURL: newShortURL, longURL: urlDatabase[newShortURL] };
   res.redirect(`/urls/${newShortURL}`);
 });
 
+//Link to longURL using shortURL
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
+//Delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  console.log(req.body)
+  console.log(req.params)
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+
   res.redirect('/urls');
 })
 
