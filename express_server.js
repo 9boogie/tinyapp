@@ -20,6 +20,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//Global scope for user data
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "admin@example.com", 
+    password: "1234"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "test@example.com", 
+    password: "test"
+  }
+}
+
 // Function for generate 6 digits of random characters and
 const generatedRandomString = function() {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -40,7 +54,7 @@ app.get("/urls", (req,res) => {
   }*/
   let templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
    };
   res.render("urls_index", templateVars);
 });
@@ -92,15 +106,38 @@ app.post("/urls/:id", (req, res) => {
 
 //Route for login
 app.post("/login", (req, res) => {
-  const user = req.body['username'];
+  const user_id = req.cookies['user_id'];
+  const user = users[user_id].email;
   //need to write a cookie (key, value)
   res.cookie("username",user);
   res.redirect('/urls');
 })
 
+//Route for logout
 app.post("/logout", (req, res) => {
-  const username = req.cookies["username"]
-  res.clearCookie("username",username);
+  //const username = req.cookies["username"]
+  res.clearCookie("user_id");
+  res.redirect('/urls');
+})
+
+//register page
+app.get("/register", (req, res) => {
+  res.render('register');
+})
+
+//Register user information
+app.post("/register", (req, res) => {
+  const newID = generatedRandomString();
+  const newUser = {
+    id: newID,
+    email: req.body.email,
+    password: req.body.password
+  };
+
+  users[newID] = newUser;
+  res.cookie("user_id", newID);
+  console.log(users);
+
   res.redirect('/urls');
 })
 

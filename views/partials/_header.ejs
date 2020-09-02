@@ -11,8 +11,8 @@
       </div>
     </div>
     <div>
-      <% if(username){ %>
-        <h5 style="margin: 2px 4px 0 0; padding-right: 5px;">Logged In As: <%= username %></h5>
+      <% if(user.email){ %>
+        <h5 style="margin: 2px 4px 0 0; padding-right: 5px;">Logged In As: <%= user.email %></h5>
         <form method="POST" action="/logout">
           <button type="submit" class="btn btn-outline-danger">LogOut</button>
         </form>
