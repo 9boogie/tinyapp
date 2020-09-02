@@ -62,14 +62,14 @@ app.get("/urls", (req,res) => {
 //Route to new adding page
 app.get("/urls/new", (req, res) => {
   let templateVars = { 
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
    };
   res.render("urls_new", templateVars);
 });
 
 //Display shorURL version with long URL
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });
 
@@ -78,7 +78,7 @@ app.post("/urls", (req, res) => {
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
   urlDatabase[newShortURL] = newLongURL;
-  let templateVars = { shortURL: newShortURL, longURL: urlDatabase[newShortURL], username: req.cookies["username"] };
+  let templateVars = { shortURL: newShortURL, longURL: urlDatabase[newShortURL], user: users[req.cookies["user_id"]] };
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -108,8 +108,6 @@ app.post("/urls/:id", (req, res) => {
 app.post("/login", (req, res) => {
   const user_id = req.cookies['user_id'];
   const user = users[user_id].email;
-  //need to write a cookie (key, value)
-  res.cookie("username",user);
   res.redirect('/urls');
 })
 
