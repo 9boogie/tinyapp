@@ -4,8 +4,11 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 // npm install body-parser (For POST route)
 const bodyParser = require("body-parser");
+// npm install cookie-parser
+const cookieParser = require('cookie-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 // npm install --save-dev nodemon ("start": "./node_modules/.bin/nodemon -L express_server.js" to make npm start)
+app.use(cookieParser());
 
 //npm install ejs (Call the ejs)
 app.set("view engine", "ejs");
@@ -27,6 +30,12 @@ const generatedRandomString = function() {
 
 //Home
 app.get("/urls", (req,res) => {
+  //check cookie
+  if(req.cookies){
+    console.log(req.cookies["username"]);
+  } else{
+    console.log("the cookie was not there");
+  }
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
@@ -70,6 +79,14 @@ app.post("/urls/:id", (req, res) => {
   const newURL = req.body['newURL'];
   const shortURL = req.params.id;
   urlDatabase[shortURL] = newURL;
+  res.redirect('/urls');
+})
+
+//Route for login
+app.post("/login", (req, res) => {
+  const user = req.body['username'];
+  //need to write a cookie
+  res.cookie("username",user);
   res.redirect('/urls');
 })
 
