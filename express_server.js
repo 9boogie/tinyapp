@@ -6,12 +6,14 @@ const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 // npm install cookie-parser
 const cookieParser = require('cookie-parser');
+
+
 app.use(bodyParser.urlencoded({extended: true}));
 // npm install --save-dev nodemon ("start": "./node_modules/.bin/nodemon -L express_server.js" to make npm start)
 app.use(cookieParser());
-
 //npm install ejs (Call the ejs)
 app.set("view engine", "ejs");
+
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -91,7 +93,7 @@ app.post("/urls/:id", (req, res) => {
 //Route for login
 app.post("/login", (req, res) => {
   const user = req.body['username'];
-  //need to write a cookie
+  //need to write a cookie (key, value)
   res.cookie("username",user);
   res.redirect('/urls');
 })
