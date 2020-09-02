@@ -30,24 +30,30 @@ const generatedRandomString = function() {
 
 //Home
 app.get("/urls", (req,res) => {
-  //check cookie
+  /*
   if(req.cookies){
     console.log(req.cookies["username"]);
   } else{
     console.log("the cookie was not there");
-  }
-  let templateVars = { urls: urlDatabase };
+  }*/
+  let templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"]
+   };
   res.render("urls_index", templateVars);
 });
 
 //Route to new adding page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { 
+    username: req.cookies["username"]
+   };
+  res.render("urls_new", templateVars);
 });
 
 //Display shorURL version with long URL
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
 
@@ -56,7 +62,7 @@ app.post("/urls", (req, res) => {
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
   urlDatabase[newShortURL] = newLongURL;
-  let templateVars = { shortURL: newShortURL, longURL: urlDatabase[newShortURL] };
+  let templateVars = { shortURL: newShortURL, longURL: urlDatabase[newShortURL], username: req.cookies["username"] };
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -87,6 +93,12 @@ app.post("/login", (req, res) => {
   const user = req.body['username'];
   //need to write a cookie
   res.cookie("username",user);
+  res.redirect('/urls');
+})
+
+app.post("/logout", (req, res) => {
+  const username = req.cookies["username"]
+  res.clearCookie("username",username);
   res.redirect('/urls');
 })
 
