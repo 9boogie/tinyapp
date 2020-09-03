@@ -112,8 +112,7 @@ app.get("/urls/new", (req, res) => {
 
 //Display shorURL version with long URL
 app.get("/urls/:shortURL", (req, res) => {
-  const userUrls = users[req.cookies['user_id']]['userUrls']
-  let templateVars = { shortURL: req.params.shortURL, longURL: userUrls[req.params.shortURL], user: users[req.cookies["user_id"]] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });
 
@@ -124,32 +123,32 @@ app.post("/urls", (req, res) => {
   const newLongURL = req.body.longURL;
   const userUrls = users[userId]['userUrls']
   urlDatabase[newShortURL] = { longURL: newLongURL, userId: userId};
-  //users[userId]['userUrls'][newShortURL] = newLongURL;
   let templateVars = { shortURL: newShortURL, longURL: userUrls[newShortURL], user: users[req.cookies["user_id"]] };
   res.redirect(`/urls/${newShortURL}`);
 });
 
 //Link to longURL using shortURL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = userUrls[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
 //Delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userUrls = users[req.cookies["user_id"]]['userUrls'];
-  const shortURL = req.params.shortURL;
-  console.log(userUrls)
-  delete userUrls[shortURL];
-
+  const userId = req.cookies['user_id'];
+  if (loginCheck(userId)) {
+    const shortURL = req.params.shortURL;
+    delete urlDatabase[shortURL];
+  }
   res.redirect('/urls');
 })
 
 //Edit long URL
 app.post("/urls/:id", (req, res) => {
+  const userId = req.cookies['user_id'];
   const newURL = req.body['newURL'];
   const shortURL = req.params.id;
-  userUrls[shortURL] = newURL;
+  urlDatabase[shortURL] = { longURL: newURL, userId: userId};
   res.redirect('/urls');
 })
 
