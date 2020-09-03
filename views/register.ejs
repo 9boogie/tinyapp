@@ -11,19 +11,21 @@
 <body>
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
-    <h3>Registration</h3>
+    <h2>Create Account</h2>
     <table class="table">
       <thead>
         <tbody>
-          <h2> Registration for the web! </h2>
             <form method="POST" action="/register">
-              <label>E-MAIL:</label>
-              <input type="text" name='email' />
+              <label >Email address</label>
               <br/>
-              <label>PASSWORD: </label>
-              <input type="password" name='password' />
+              <input type="text" name='email' placeholder="Enter email"/>
               <br/>
-              <button type="submit" class="btn btn-info">Register</button>
+              <label>Password </label>
+              <br/>
+              <input type="password" name='password' placeholder="password"/>
+              <br/>
+              <br/>
+              <button type="submit" class="btn btn-primary">Register</button>
             </form>
         </tbody>
       </thead>
