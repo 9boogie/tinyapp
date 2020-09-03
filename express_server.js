@@ -6,6 +6,8 @@ const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 // npm install cookie-parser
 const cookieParser = require('cookie-parser');
+// npm install -E bcrypt@2.0.0
+const bcrypt = require('bcrypt');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -164,10 +166,10 @@ app.post("/login", (req, res) => {
     return res.status(403).send('no user with that email found');
   }
 
-  if (foundUser.password !== password) {
+  if (!bcrypt.compareSync(password, foundUser.password)) {
     return res.status(403).send("Incorrect password!");
   }
-
+  console.log(foundUser.password)
   res.cookie("user_id",foundUser.id);
   urlsForUser(foundUser.id);
   res.redirect('/urls');
@@ -198,6 +200,7 @@ app.get("/register", (req, res) => {
 //Register user information
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
+  const hashedPassword = bcrypt.hashSync(password, 2);
   if (!email || !password) {
     return res.status(400).send("Email & password can't be null");
   }
@@ -209,10 +212,11 @@ app.post("/register", (req, res) => {
   const newUser = {
     id: newID,
     email: req.body.email,
-    password: req.body.password
+    password: hashedPassword
   };
-
+  console.log(newUser)
   users[newID] = newUser;
+  console.log(users);
   res.cookie("user_id", newID);
   res.redirect('/urls');
 });
