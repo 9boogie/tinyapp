@@ -44,14 +44,18 @@ const generatedRandomString = function() {
   return result;
 };
 
+const emailCheck = function(email) {
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.email === email) {
+      return user;
+    }
+  }
+  return null;
+}
+
 //Home
 app.get("/urls", (req,res) => {
-  /*
-  if(req.cookies){
-    console.log(req.cookies["username"]);
-  } else{
-    console.log("the cookie was not there");
-  }*/
   let templateVars = { 
     urls: urlDatabase,
     user: users[req.cookies["user_id"]]
@@ -104,27 +108,58 @@ app.post("/urls/:id", (req, res) => {
   res.redirect('/urls');
 })
 
-//Route for login
+//Login Process
 app.post("/login", (req, res) => {
-  const user_id = req.cookies['user_id'];
-  const user = users[user_id].email;
-  res.redirect('/urls');
-})
+  const { email, password } = req.body;
+  const foundUser = emailCheck(email);
+  if (!email || !password) {
+    return res.status(403).send('email and password cannot be blank');
+  }
 
-//Route for logout
+  if (foundUser === null) {
+    return res.status(403).send('no user with that email found');
+  }
+
+  if (foundUser.password !== password) {
+    return res.status(403).send("Incorrect password!");
+  }
+
+  res.cookie("user_id",foundUser.id);
+  res.redirect('/urls');
+});
+
+//Logout Process
 app.post("/logout", (req, res) => {
-  //const username = req.cookies["username"]
   res.clearCookie("user_id");
   res.redirect('/urls');
-})
+});
+
+//Login page
+app.get("/login", (req, res) => {
+  let templateVars = { 
+    user: users[req.cookies["user_id"]]
+   };
+  res.render('login', templateVars);
+});
 
 //register page
 app.get("/register", (req, res) => {
-  res.render('register');
-})
+  let templateVars = { 
+    user: users[req.cookies["user_id"]]
+   };
+  res.render('register', templateVars);
+});
 
 //Register user information
 app.post("/register", (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).send("Email & password can't be null");
+  }
+
+  if (emailCheck(email)) {
+    return res.status(400).send("This email is already registered!");
+  }
   const newID = generatedRandomString();
   const newUser = {
     id: newID,
@@ -137,7 +172,7 @@ app.post("/register", (req, res) => {
   console.log(users);
 
   res.redirect('/urls');
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);

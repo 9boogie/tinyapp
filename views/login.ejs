@@ -6,25 +6,27 @@
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>Register Page</title>
+  <title>Login Page</title>
 </head>
 <body>
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
-    <h3>Registration</h3>
+    <h3>Login</h3>
     <table class="table">
       <thead>
         <tbody>
-          <h2> Registration for the web! </h2>
-            <form method="POST" action="/register">
-              <label>E-MAIL:</label>
-              <input type="text" name='email' />
-              <br/>
-              <label>PASSWORD: </label>
-              <input type="password" name='password' />
-              <br/>
-              <button type="submit" class="btn btn-info">Register</button>
-            </form>
+          <h4>
+            Email
+          </h4>
+          <form method="POST" action="/login">
+            <label>E-MAIL:</label>
+            <input type="text" name='email' />
+            <br/>
+            <label>PASSWORD: </label>
+            <input type="password" name='password' />
+            <br/>
+            <button type="submit" class="btn btn-info">Login</button>
+          </form>
         </tbody>
       </thead>
     </table>
