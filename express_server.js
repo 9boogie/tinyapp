@@ -24,7 +24,7 @@ const urlDatabase = {
 //Global scope for user data
 const users = { 
   "aJ48lW": {
-    id: "uaJ48lW", 
+    id: "aJ48lW", 
     email: "admin@amail.com", 
     password: "1234"
   },
@@ -62,7 +62,10 @@ const urlsForUser = function(id) {
       result[short] = urlDatabase[short].longURL;
     }
   }
-  return users[id]['userUrls'] = result;
+  console.log(id);
+  console.log('test',result);
+  console.log('user',users);
+  users[id]['userUrls'] = result;
 };
 
 const loginCheck = function(id) {
@@ -78,11 +81,8 @@ const loginCheck = function(id) {
 //Home
 app.get("/urls", (req,res) => {
   const userId = req.cookies['user_id'];
-  console.log(userId);
-  console.log('test',emailCheck(userId))
   if (loginCheck(userId)) {
     urlsForUser(userId);
-    console.log(users[userId])
     const userUrls = users[userId]['userUrls'];
     let templateVars = { 
       urls: userUrls,
@@ -99,14 +99,18 @@ app.get("/urls", (req,res) => {
 
 //New url Page
 app.get("/urls/new", (req, res) => {
-  if (req.cookies['user_id'] === undefined) {
-    return res.redirect("/urls");
+  const userId = req.cookies['user_id'];
+  if (loginCheck(userId)) {
+    let templateVars = { 
+      user: users[req.cookies["user_id"]]
+     };
+    res.render("urls_new", templateVars);
+  } else {
+    let templateVars = {
+      user: users[req.cookies["user_id"]]
+     };
+    res.render("noUser", templateVars);
   }
-
-  let templateVars = { 
-    user: users[req.cookies["user_id"]]
-   };
-  res.render("urls_new", templateVars);
 });
 
 //Display shorURL version with long URL
@@ -119,9 +123,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
-  console.log(userUrls);
-  console.log(newShortURL);
-  userUrls[newShortURL] = newLongURL;
+  users[req.cookies["user_id"]]['userUrls'][newShortURL] = newLongURL;
   let templateVars = { shortURL: newShortURL, longURL: userUrls[newShortURL], user: users[req.cookies["user_id"]] };
   res.redirect(`/urls/${newShortURL}`);
 });
@@ -134,7 +136,9 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const userUrls = users[req.cookies["user_id"]]['userUrls'];
   const shortURL = req.params.shortURL;
+  console.log(userUrls)
   delete userUrls[shortURL];
 
   res.redirect('/urls');
