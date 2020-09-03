@@ -33,7 +33,9 @@ const users = {
     email: "test@mail.com", 
     password: "test"
   }
-}
+};
+
+const userUrls = {};
 
 // Function for generate 6 digits of random characters and
 const generatedRandomString = function() {
@@ -53,22 +55,20 @@ const emailCheck = function(email) {
     }
   }
   return null;
-}
+};
 
 const urlsForUser = function(id) {
-  const result = {};
   for (const short in urlDatabase) {
     if(urlDatabase[short].userId === id) {
-      result[short] = urlDatabase[short].longURL;
+      userUrls[short] = urlDatabase[short].longURL;
     }
   }
-  return users[id].userUrls = result;
-}
+};
 
 //Home
 app.get("/urls", (req,res) => {
   if (req.cookies['user_id']) {
-    const userUrls = users[req.cookies['user_id']].userUrls;
+    urlsForUser(req.cookies['user_id']);
     let templateVars = { 
       urls: userUrls,
       user: users[req.cookies["user_id"]]
@@ -96,16 +96,16 @@ app.get("/urls/new", (req, res) => {
 
 //Display shorURL version with long URL
 app.get("/urls/:shortURL", (req, res) => {
-  const userUrls = users[req.cookies['user_id']].userUrls;
   let templateVars = { shortURL: req.params.shortURL, longURL: userUrls[req.params.shortURL], user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });
 
 //Add new url on Home
 app.post("/urls", (req, res) => {
-  const userUrls = users[req.cookies['user_id']].userUrls;
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
+  console.log(userUrls);
+  console.log(newShortURL);
   userUrls[newShortURL] = newLongURL;
   let templateVars = { shortURL: newShortURL, longURL: userUrls[newShortURL], user: users[req.cookies["user_id"]] };
   res.redirect(`/urls/${newShortURL}`);
@@ -113,14 +113,12 @@ app.post("/urls", (req, res) => {
 
 //Link to longURL using shortURL
 app.get("/u/:shortURL", (req, res) => {
-  const userUrls = users[req.cookies['user_id']].userUrls;
   const longURL = userUrls[req.params.shortURL];
   res.redirect(longURL);
 });
 
 //Delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userUrls = users[req.cookies['user_id']].userUrls;
   const shortURL = req.params.shortURL;
   delete userUrls[shortURL];
 
@@ -129,7 +127,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Edit long URL
 app.post("/urls/:id", (req, res) => {
-  const userUrls = users[req.cookies['user_id']].userUrls;
   const newURL = req.body['newURL'];
   const shortURL = req.params.id;
   userUrls[shortURL] = newURL;
@@ -153,7 +150,7 @@ app.post("/login", (req, res) => {
   }
 
   res.cookie("user_id",foundUser.id);
-  urlsForUser(req.cookies['user_id']);
+  urlsForUser(foundUser.id);
   res.redirect('/urls');
 });
 
