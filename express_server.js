@@ -62,10 +62,7 @@ const urlsForUser = function(id) {
       result[short] = urlDatabase[short].longURL;
     }
   }
-  console.log(id);
-  console.log('test',result);
-  console.log('user',users);
-  users[id]['userUrls'] = result;
+  return users[id]['userUrls'] = result;
 };
 
 const loginCheck = function(id) {
@@ -115,15 +112,19 @@ app.get("/urls/new", (req, res) => {
 
 //Display shorURL version with long URL
 app.get("/urls/:shortURL", (req, res) => {
+  const userUrls = users[req.cookies['user_id']]['userUrls']
   let templateVars = { shortURL: req.params.shortURL, longURL: userUrls[req.params.shortURL], user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });
 
 //Add new url on Home
 app.post("/urls", (req, res) => {
+  const userId = req.cookies['user_id'];
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
-  users[req.cookies["user_id"]]['userUrls'][newShortURL] = newLongURL;
+  const userUrls = users[userId]['userUrls']
+  urlDatabase[newShortURL] = { longURL: newLongURL, userId: userId};
+  //users[userId]['userUrls'][newShortURL] = newLongURL;
   let templateVars = { shortURL: newShortURL, longURL: userUrls[newShortURL], user: users[req.cookies["user_id"]] };
   res.redirect(`/urls/${newShortURL}`);
 });
