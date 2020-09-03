@@ -35,8 +35,6 @@ const users = {
   }
 };
 
-const userUrls = {};
-
 // Function for generate 6 digits of random characters and
 const generatedRandomString = function() {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -58,17 +56,34 @@ const emailCheck = function(email) {
 };
 
 const urlsForUser = function(id) {
+  const result = {};
   for (const short in urlDatabase) {
     if(urlDatabase[short].userId === id) {
-      userUrls[short] = urlDatabase[short].longURL;
+      result[short] = urlDatabase[short].longURL;
     }
   }
+  return users[id]['userUrls'] = result;
 };
+
+const loginCheck = function(id) {
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.id === id) {
+      return true;
+    }
+  }
+  return false;
+}
 
 //Home
 app.get("/urls", (req,res) => {
-  if (req.cookies['user_id']) {
-    urlsForUser(req.cookies['user_id']);
+  const userId = req.cookies['user_id'];
+  console.log(userId);
+  console.log('test',emailCheck(userId))
+  if (loginCheck(userId)) {
+    urlsForUser(userId);
+    console.log(users[userId])
+    const userUrls = users[userId]['userUrls'];
     let templateVars = { 
       urls: userUrls,
       user: users[req.cookies["user_id"]]
