@@ -55,17 +55,6 @@ const generatedRandomString = function() {
   return result;
 };
 
-/*
-const getUserByEmail = function(email, database) {
-  for (const userId in database) {
-    const user = database[userId];
-    if (user.email === email) {
-      return user;
-    }
-  }
-  return null;
-};
-*/
 const urlsForUser = function(id) {
   const result = {};
   for (const short in urlDatabase) {
@@ -171,7 +160,7 @@ app.post("/login", (req, res) => {
     return res.status(403).send('email and password cannot be blank');
   }
 
-  if (foundUser === null) {
+  if (foundUser === undefined) {
     return res.status(403).send('no user with that email found');
   }
 
