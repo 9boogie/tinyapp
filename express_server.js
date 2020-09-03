@@ -10,6 +10,8 @@ const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 // npm install cookie-session
 const cookieSession = require('cookie-session');
+//helper function
+const { getUserByEmail } = require('./helpers');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -53,6 +55,7 @@ const generatedRandomString = function() {
   return result;
 };
 
+/*
 const getUserByEmail = function(email, database) {
   for (const userId in database) {
     const user = database[userId];
@@ -62,7 +65,7 @@ const getUserByEmail = function(email, database) {
   }
   return null;
 };
-
+*/
 const urlsForUser = function(id) {
   const result = {};
   for (const short in urlDatabase) {
