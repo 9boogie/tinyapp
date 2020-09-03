@@ -16,20 +16,21 @@ app.set("view engine", "ejs");
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "aJ48lW" },
+  "9sm5xK": { longURL: "http://www.google.com", userId: "aJ48lW" },
+  "b6UTxQ": { longURL: "https://www.tsn.ca", userId: "18JYyj" }
 };
 
 //Global scope for user data
 const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "admin@example.com", 
+  "aJ48lW": {
+    id: "uaJ48lW", 
+    email: "admin@amail.com", 
     password: "1234"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "test@example.com", 
+  "18JYyj": {
+    id: "18JYyj", 
+    email: "test@mail.com", 
     password: "test"
   }
 }
@@ -54,6 +55,16 @@ const emailCheck = function(email) {
   return null;
 }
 
+const urlsForUser = function(id) {
+  const result = {};
+  for (const short in urlDatabase) {
+    if(urlDatabase[short].userId === id) {
+      result[short] = urlDatabase[short].longURL;
+    }
+  }
+  return result;
+}
+
 //Home
 app.get("/urls", (req,res) => {
   let templateVars = { 
@@ -63,8 +74,12 @@ app.get("/urls", (req,res) => {
   res.render("urls_index", templateVars);
 });
 
-//Route to new adding page
+//New url Page
 app.get("/urls/new", (req, res) => {
+  if (req.cookies['user_id'] === undefined) {
+    return res.redirect("/urls");
+  }
+
   let templateVars = { 
     user: users[req.cookies["user_id"]]
    };
@@ -169,8 +184,6 @@ app.post("/register", (req, res) => {
 
   users[newID] = newUser;
   res.cookie("user_id", newID);
-  console.log(users);
-
   res.redirect('/urls');
 });
 
