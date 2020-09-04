@@ -32,15 +32,15 @@ const urlDatabase = {
 };
 
 //Global scope for user data
-const users = { 
+const users = {
   "aJ48lW": {
-    id: "aJ48lW", 
-    email: "admin@amail.com", 
+    id: "aJ48lW",
+    email: "admin@amail.com",
     password: "1234"
   },
   "18JYyj": {
-    id: "18JYyj", 
-    email: "test@mail.com", 
+    id: "18JYyj",
+    email: "test@mail.com",
     password: "test"
   }
 };
@@ -58,7 +58,7 @@ const generatedRandomString = function() {
 const urlsForUser = function(id) {
   const result = {};
   for (const short in urlDatabase) {
-    if(urlDatabase[short].userId === id) {
+    if (urlDatabase[short].userId === id) {
       result[short] = urlDatabase[short].longURL;
     }
   }
@@ -73,7 +73,7 @@ const loginCheck = function(id) {
     }
   }
   return false;
-}
+};
 
 //Home
 app.get("/urls", (req,res) => {
@@ -81,15 +81,15 @@ app.get("/urls", (req,res) => {
   if (loginCheck(userId)) {
     urlsForUser(userId);
     const userUrls = users[userId]['userUrls'];
-    let templateVars = { 
+    let templateVars = {
       urls: userUrls,
       user: users[req.session.user_id]
-     };
+    };
     res.render("urls_index", templateVars);
   } else {
     let templateVars = {
       user: users[req.session.user_id]
-     };
+    };
     res.render("noUser", templateVars);
   }
 });
@@ -98,22 +98,37 @@ app.get("/urls", (req,res) => {
 app.get("/urls/new", (req, res) => {
   const userId = req.session.user_id;
   if (loginCheck(userId)) {
-    let templateVars = { 
+    let templateVars = {
       user: users[req.session.user_id]
-     };
+    };
     res.render("urls_new", templateVars);
   } else {
     let templateVars = {
       user: users[req.session.user_id]
-     };
+    };
     res.render("noUser", templateVars);
   }
 });
 
 //Display shorURL version with long URL
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.session.user_id] };
-  res.render("urls_show", templateVars);
+  const userId = req.session.user_id;
+  const shorURL = req.params.shortURL;
+  console.log('test',userId);
+  if (!loginCheck(userId)) {
+    let templateVars = {
+      user: users[req.session.user_id]
+    };
+    res.render("noUser", templateVars);
+  } else if (urlDatabase[shorURL] && urlDatabase[shorURL].userId === userId) {
+    let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.session.user_id] };
+    res.render("urls_show", templateVars);
+  } else {
+    let templateVars = {
+      user: users[req.session.user_id]
+    };
+    res.render("noShortURL", templateVars);
+  }
 });
 
 //Add new url on Home
@@ -121,9 +136,9 @@ app.post("/urls", (req, res) => {
   const userId = req.session.user_id;
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
-  const userUrls = users[userId]['userUrls']
+  const userUrls = users[userId]['userUrls'];
   urlDatabase[newShortURL] = { longURL: newLongURL, userId: userId};
-  let templateVars = { shortURL: newShortURL, longURL: userUrls[newShortURL], user: users[req.session.user_id] };
+  //let templateVars = { shortURL: newShortURL, longURL: userUrls[newShortURL], user: users[req.session.user_id] };
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -141,7 +156,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlDatabase[shortURL];
   }
   res.redirect('/urls');
-})
+});
 
 //Edit long URL
 app.post("/urls/:id", (req, res) => {
@@ -150,7 +165,7 @@ app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   urlDatabase[shortURL] = { longURL: newURL, userId: userId};
   res.redirect('/urls');
-})
+});
 
 //Login Process
 app.post("/login", (req, res) => {
@@ -167,33 +182,30 @@ app.post("/login", (req, res) => {
   if (!bcrypt.compareSync(password, foundUser.password)) {
     return res.status(403).send("Incorrect password!");
   }
-
   req.session.user_id = foundUser.id;
-  //res.cookie("user_id",foundUser.id);
   urlsForUser(foundUser.id);
   res.redirect('/urls');
 });
 
 //Logout Process
 app.post("/logout", (req, res) => {
-  //res.clearCookie("user_id");
-  req.session = null
-  res.redirect('/urls');
+  req.session = null;
+  res.redirect('/login');
 });
 
 //Login page
 app.get("/login", (req, res) => {
-  let templateVars = { 
+  let templateVars = {
     user: users[req.session.user_id]
-   };
+  };
   res.render('login', templateVars);
 });
 
 //register page
 app.get("/register", (req, res) => {
-  let templateVars = { 
+  let templateVars = {
     user: users[req.session.user_id]
-   };
+  };
   res.render('register', templateVars);
 });
 
@@ -215,7 +227,6 @@ app.post("/register", (req, res) => {
     password: hashedPassword
   };
   users[newID] = newUser;
-  //res.cookie("user_id", newID);
   req.session.user_id = newID;
   res.redirect('/urls');
 });
