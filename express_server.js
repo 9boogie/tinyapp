@@ -188,6 +188,7 @@ app.post("/urls/:id", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const foundUser = getUserByEmail(email, users);
+  
   if (!email || !password) {
     return res.status(403).send('email and password cannot be blank');
   }
