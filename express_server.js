@@ -1,3 +1,4 @@
+// +++++++++++++++++++++ SETUP +++++++++++++++++++++++++++++++++++
 // npm install express
 const express = require('express');
 const app = express();
@@ -25,6 +26,7 @@ app.use(cookieSession({
   keys: ['key1', "key2"]
 }));
 
+// +++++++++++++++++++++ Database and Functions +++++++++++++++++++++++++++++++++++
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "aJ48lW" },
   "9sm5xK": { longURL: "http://www.google.com", userId: "aJ48lW" },
@@ -75,7 +77,18 @@ const loginCheck = function(id) {
   return false;
 };
 
+// +++++++++++++++++++++ PAGES +++++++++++++++++++++++++++++++++++
 //Home
+app.get("/", (req,res) => {
+  const userId = req.session.userId;
+  if (loginCheck(userId)) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
+});
+
+// url page
 app.get("/urls", (req,res) => {
   const userId = req.session.userId;
   if (loginCheck(userId)) {
@@ -103,10 +116,7 @@ app.get("/urls/new", (req, res) => {
     };
     res.render("urls_new", templateVars);
   } else {
-    let templateVars = {
-      user: users[req.session.userId]
-    };
-    res.render("noUser", templateVars);
+    res.redirect('/urls');
   }
 });
 
