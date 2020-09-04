@@ -77,18 +77,18 @@ const loginCheck = function(id) {
 
 //Home
 app.get("/urls", (req,res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   if (loginCheck(userId)) {
     urlsForUser(userId);
     const userUrls = users[userId]['userUrls'];
     let templateVars = {
       urls: userUrls,
-      user: users[req.session.user_id]
+      user: users[req.session.userId]
     };
     res.render("urls_index", templateVars);
   } else {
     let templateVars = {
-      user: users[req.session.user_id]
+      user: users[req.session.userId]
     };
     res.render("noUser", templateVars);
   }
@@ -96,15 +96,15 @@ app.get("/urls", (req,res) => {
 
 //New url Page
 app.get("/urls/new", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   if (loginCheck(userId)) {
     let templateVars = {
-      user: users[req.session.user_id]
+      user: users[req.session.userId]
     };
     res.render("urls_new", templateVars);
   } else {
     let templateVars = {
-      user: users[req.session.user_id]
+      user: users[req.session.userId]
     };
     res.render("noUser", templateVars);
   }
@@ -112,20 +112,20 @@ app.get("/urls/new", (req, res) => {
 
 //Display shorURL version with long URL
 app.get("/urls/:shortURL", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   const shorURL = req.params.shortURL;
-  console.log('test',userId);
   if (!loginCheck(userId)) {
     let templateVars = {
-      user: users[req.session.user_id]
+      user: users[req.session.userId]
     };
     res.render("noUser", templateVars);
   } else if (urlDatabase[shorURL] && urlDatabase[shorURL].userId === userId) {
-    let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.session.user_id] };
+    let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.session.userId] };
     res.render("urls_show", templateVars);
   } else {
     let templateVars = {
-      user: users[req.session.user_id]
+      shortURL: shorURL,
+      user: users[req.session.userId]
     };
     res.render("noShortURL", templateVars);
   }
@@ -133,24 +133,31 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //Add new url on Home
 app.post("/urls", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   const newShortURL = generatedRandomString();
   const newLongURL = req.body.longURL;
-  const userUrls = users[userId]['userUrls'];
   urlDatabase[newShortURL] = { longURL: newLongURL, userId: userId};
-  //let templateVars = { shortURL: newShortURL, longURL: userUrls[newShortURL], user: users[req.session.user_id] };
   res.redirect(`/urls/${newShortURL}`);
 });
 
 //Link to longURL using shortURL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  const shorURL = req.params.shortURL;
+  if (urlDatabase[shorURL]) {
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
+  } else {
+    let templateVars = {
+      shortURL: shorURL,
+      user: users[req.session.userId]
+    };
+    res.render("noShortURL", templateVars);
+  }
 });
 
 //Delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   if (loginCheck(userId)) {
     const shortURL = req.params.shortURL;
     delete urlDatabase[shortURL];
@@ -160,7 +167,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Edit long URL
 app.post("/urls/:id", (req, res) => {
-  const userId = req.session.user_id;
+  const userId = req.session.userId;
   const newURL = req.body['newURL'];
   const shortURL = req.params.id;
   urlDatabase[shortURL] = { longURL: newURL, userId: userId};
@@ -182,7 +189,7 @@ app.post("/login", (req, res) => {
   if (!bcrypt.compareSync(password, foundUser.password)) {
     return res.status(403).send("Incorrect password!");
   }
-  req.session.user_id = foundUser.id;
+  req.session.userId = foundUser.id;
   urlsForUser(foundUser.id);
   res.redirect('/urls');
 });
@@ -190,13 +197,13 @@ app.post("/login", (req, res) => {
 //Logout Process
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect('/login');
+  res.redirect('/urls');
 });
 
 //Login page
 app.get("/login", (req, res) => {
   let templateVars = {
-    user: users[req.session.user_id]
+    user: users[req.session.userId]
   };
   res.render('login', templateVars);
 });
@@ -204,7 +211,7 @@ app.get("/login", (req, res) => {
 //register page
 app.get("/register", (req, res) => {
   let templateVars = {
-    user: users[req.session.user_id]
+    user: users[req.session.userId]
   };
   res.render('register', templateVars);
 });
@@ -227,7 +234,7 @@ app.post("/register", (req, res) => {
     password: hashedPassword
   };
   users[newID] = newUser;
-  req.session.user_id = newID;
+  req.session.userId = newID;
   res.redirect('/urls');
 });
 
