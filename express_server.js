@@ -1,24 +1,15 @@
 // +++++++++++++++++++++ SETUP +++++++++++++++++++++++++++++++++++
-// npm install express
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 8080;
-// npm install body-parser (For POST route)
 const bodyParser = require("body-parser");
-// npm install cookie-parser (replaced by cookie session)
-//const cookieParser = require('cookie-parser');
-// npm install -E bcrypt@2.0.0
 const bcrypt = require('bcrypt');
-// npm install cookie-session
 const cookieSession = require('cookie-session');
 //helper function
-const { getUserByEmail } = require('./helpers');
+const { getUserByEmail, generatedRandomString } = require('./helpers');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
-// npm install --save-dev nodemon ("start": "./node_modules/.bin/nodemon -L express_server.js" to make npm start)
-//app.use(cookieParser());
-//npm install ejs (Call the ejs)
 app.set("view engine", "ejs");
 // use of cookie session
 app.use(cookieSession({
@@ -45,16 +36,6 @@ const users = {
     email: "test@mail.com",
     password: "test"
   }
-};
-
-// Function for generate 6 digits of random characters and
-const generatedRandomString = function() {
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += letters[(Math.floor(Math.random() * letters.length))];
-  }
-  return result;
 };
 
 const urlsForUser = function(id) {

@@ -8,4 +8,13 @@ const getUserByEmail = function(email, database) {
   return undefined;
 };
 
-module.exports = { getUserByEmail };
+const generatedRandomString = function() {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += letters[(Math.floor(Math.random() * letters.length))];
+  }
+  return result;
+};
+
+module.exports = { getUserByEmail, generatedRandomString };
